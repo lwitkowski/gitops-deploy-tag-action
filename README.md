@@ -24,6 +24,8 @@ jobs:
           target-file: 'sample-service/prod/values.yaml'
 ```
 
+TODO: how to setup `DEPLOY_TOKEN` secret? machine user token with repo write permissions
+
 ## Configuration
 
 The action can be configured by the following options.
@@ -34,6 +36,5 @@ The action can be configured by the following options.
 |`target-file`|mandatory|Path to yaml file inside gitops repo to be updated.|
 |`docker-image-tag`|`${GITHUB_SHA::6}`|Docker image tag to be set in target yaml file.|
 |`env.DEPLOY_TOKEN`|mandatory|Github access token with write permission to gitops repo. Should be set as env variable in calling workflow.|
-
 
 Note: Running this action on `pull_request_target` events is [dangerous if combined with code checkout and code execution](https://securitylab.github.com/research/github-actions-preventing-pwn-requests).

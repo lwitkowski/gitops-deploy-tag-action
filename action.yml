@@ -13,16 +13,18 @@ inputs:
   docker-image-tag:
     description: 'docker image tag'
     required: true
-    default: ${GITHUB_SHA::6}
+    default: ${GITHUB_SHA::7}
 
 runs:
   using: "composite"
   steps:
     - name: Checkout gitops
       run: |
-        echo Checking out https://github.com/${{ inputs.gitops-repo }}.git
+        echo Checking out ${GITHUB_SERVER_URL}/${{ inputs.gitops-repo }}.git
         rm -rf ./gitops_tmp
-        git clone --depth 1 https://x-access-token:$DEPLOY_TOKEN@github.com/${{ inputs.gitops-repo }}.git ./gitops_tmp
+
+        GH_URL=$(echo "$GITHUB_SERVER_URL" | sed 's,://,://x-access-token:'"$DEPLOY_TOKEN"'@,g')
+        git clone --depth 1 ${GH_URL}/${{ inputs.gitops-repo }}.git ./gitops_tmp
       shell: bash
 
     - name: Update image tag
@@ -36,9 +38,9 @@ runs:
       working-directory: ./gitops_tmp
       run: |
         echo Pushing changes to ${{ inputs.gitops-repo }}
+        git config user.name "GitHub Actions"
         git config user.email "ga-deployer@tietoevry.com"
-        git config user.name "GA deployer"
         git add .
-        git commit --allow-empty -m "Deploy \"${{ inputs.docker-image-tag }}\" tag for ${{ inputs.target-file }}"
+        git commit --allow-empty -m "Deploy \"${{ inputs.docker-image-tag }}\" tag into ${{ inputs.target-file }}"
         git push -u origin master
       shell: bash
